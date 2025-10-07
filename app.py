@@ -6,6 +6,7 @@ from update_tasks import update_task  # Now accepts a dict
 from get_task_names import task_name
 import os
 from dotenv import load_dotenv
+from datetime import datetime
 
 load_dotenv()
 ACCESS_TOKEN = os.getenv("ASANA_PAT")
@@ -52,7 +53,24 @@ try:
                     # Asana requires due_on/due_at if start_on is set
                 #     if due_on_t is None and due_on_s is not None:
                 #         update_data["due_on"] = due_on_s
+                if update_data:
+                    print("Updating main task with:", update_data)
+                    update_task(task_gid, update_data)
 
+                if start_on_s is not None:
+                    start_on_s_date = datetime.strptime(start_on_s, "%Y-%m-%d").date()
+                if due_on_s is not None:
+                    due_on_s_date = datetime.strptime(due_on_s, "%Y-%m-%d").date()
+                if start_on_t is not None:
+                    start_on_t_date = datetime.strptime(start_on_t, "%Y-%m-%d").date()
+                if due_on_t is not None:
+                    due_on_t_date = datetime.strptime(due_on_t, "%Y-%m-%d").date()
+
+                if start_on_t is not None and due_on_t is not None:
+                    if start_on_s is not None and start_on_s < start_on_t:
+                        update_data["start_on"] = start_on_s
+                    if due_on_s is not None and due_on_s > due_on_t:
+                        update_data["due_on"] = due_on_s
                 # # If task due_on is missing but subtask has it
                 # elif due_on_t is None and due_on_s is not None:
                 #     update_data["due_on"] = due_on_s
